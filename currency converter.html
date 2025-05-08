@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Currency Converter</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 40px;
+      background: #659d8e;
+    }
+    .converter {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+      max-width: 400px;
+      margin: auto;
+    }
+    select, input, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 16px;
+    }
+    .result {
+      margin-top: 20px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="converter">
+    <h2>Currency Converter</h2>
+    <select id="from"></select>
+    <select id="to"></select>
+    <input type="number" id="amount" placeholder="Enter amount" />
+    <button onclick="convert()">Convert</button>
+    <div class="result" id="result">Result will appear here</div>
+  </div>
+
+  <script>
+    const accessKey = 'K7uxuRwXO82sSTuJXbngHixcXRRjOKFM'; // Replace with your real API key
+    const fromSelect = document.getElementById('from');
+    const toSelect = document.getElementById('to');
+
+    async function fetchCurrencies() {
+      const res = await fetch(`https://api.apilayer.com/exchangerates_data/symbols`, {
+        headers: { apikey: accessKey }
+      });
+      const data = await res.json();
+      if (!data.symbols) {
+        alert('Failed to fetch currency symbols');
+        return;
+      }
+
+      for (let key in data.symbols) {
+        const option1 = new Option(`${key} - ${data.symbols[key]}`, key);
+        const option2 = new Option(`${key} - ${data.symbols[key]}`, key);
+        fromSelect.add(option1);
+        toSelect.add(option2);
+      }
+
+      fromSelect.value = 'USD';
+      toSelect.value = 'EUR';
+    }
+
+    async function convert() {
+      const from = fromSelect.value;
+      const to = toSelect.value;
+      const amount = document.getElementById('amount').value;
+
+      const res = await fetch(`https://api.apilayer.com/exchangerates_data/convert?from=${from}&to=${to}&amount=${amount}`, {
+        headers: { apikey: accessKey }
+      });
+      const data = await res.json();
+      document.getElementById('result').textContent = `${amount} ${from} = ${data.result} ${to}`;
+    }
+
+    fetchCurrencies();
+  </script>
+</body>
+</html>
